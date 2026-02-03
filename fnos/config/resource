@@ -1,6 +1,6 @@
 {
     "port-config": {
-        "protocol-file": "qBittorrent.sc"
+        "protocol-file": "qbittorrent.sc"
     },
     "data-share": {
         "shares": [

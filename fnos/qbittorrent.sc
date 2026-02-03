@@ -1,4 +1,4 @@
-[qBittorrent]
+[qbittorrent]
 title="qBittorrent"
 desc="qBittorrent Web UI"
 port_forward="yes"
