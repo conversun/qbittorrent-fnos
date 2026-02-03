@@ -70,8 +70,8 @@ jobs:
           
           cp -a fnos/ui/* app_root/ui/ 2>/dev/null || true
           
-          mkdir -p app_root/var/config
-          cat << 'QBCONF' | sed 's/^ *//' > app_root/var/config/qBittorrent.conf
+          mkdir -p app_root/var/config/qBittorrent
+          cat << 'QBCONF' | sed 's/^ *//' > app_root/var/config/qBittorrent/qBittorrent.conf
           [LegalNotice]
           Accepted=true
 
@@ -94,6 +94,7 @@ jobs:
           WebUI\CSRFProtection=false
           WebUI\ClickjackingProtection=false
           WebUI\HostHeaderValidation=false
+          WebUI\LocalHostAuth=false
           QBCONF
           
           cd app_root && tar -czf ../app.tgz . && cd ..

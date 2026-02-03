@@ -6,7 +6,7 @@ PACKAGE_BASE="/var/apps/${TRIM_APPNAME}/target"
 SVC_CWD="${PACKAGE_BASE}"
 
 QBIT_BIN="qbittorrent-nox"
-QBIT_CONF="${TRIM_PKGVAR}/config/qBittorrent.conf"
+QBIT_CONF="${TRIM_PKGVAR}/config/qBittorrent/qBittorrent.conf"
 PORT=""
 if [ -f "${QBIT_CONF}" ]; then
     PORT=`get_key_value "${QBIT_CONF}" "WebUI\Port"`
