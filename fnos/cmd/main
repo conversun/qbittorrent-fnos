@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Default display name
-
-SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/aliyundrive-subscribe"
-#执行用户
-USER="aliyundrive-subscribe"
-
-#切换执行用户
-EFF_USER="aliyundrive-subscribe"
 
 # Source package specific variable and functions
 COMMON=$(dirname $0)"/common"
