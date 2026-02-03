@@ -68,18 +68,21 @@ jobs:
           cp qbittorrent-nox app_root/bin/qbittorrent-nox
           chmod +x app_root/bin/qbittorrent-nox
           
+          cp fnos/bin/password-gen app_root/bin/password-gen
+          chmod +x app_root/bin/password-gen
+          
           cp -a fnos/ui/* app_root/ui/ 2>/dev/null || true
           
           mkdir -p app_root/qBittorrent_conf/config
           cat > app_root/qBittorrent_conf/config/qBittorrent.conf << 'QBCONF'
-          [LegalNotice]
-          Accepted=true
-          
-          [Preferences]
-          WebUI\Port=8080
-          WebUI\Username=admin
-          WebUI\Password_PBKDF2="@ByteArray(xK2EwRvfGtxfF+Ot9v4WYQ==:bNStY/6mFYYW8m/Xm4xSbBjoR2tZNsLZ4KvdUzyCLEOg7tfpchVJucIK9Dwcp6Xe9DI4RwpoCPI9zhicTdtf5A==)"
-          QBCONF
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+WebUI\Port=8080
+WebUI\Username=admin
+WebUI\Password_PBKDF2="@ByteArray(xK2EwRvfGtxfF+Ot9v4WYQ==:bNStY/6mFYYW8m/Xm4xSbBjoR2tZNsLZ4KvdUzyCLEOg7tfpchVJucIK9Dwcp6Xe9DI4RwpoCPI9zhicTdtf5A==)"
+QBCONF
           
           cd app_root && tar -czf ../app.tgz . && cd ..
           ls -lh app.tgz
