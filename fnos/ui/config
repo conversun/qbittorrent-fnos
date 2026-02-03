@@ -1,0 +1,15 @@
+{
+    ".url": {
+        "qbittorrent.Application": 
+        {
+            "title": "qBittorrent",
+            "desc": "qBittorrent Web UI",
+            "icon": "images/{0}.png",
+            "type": "url",
+            "port": "8080",
+            "protocol": "http",
+            "url": "/",
+            "allUsers": true
+        }
+    }
+}

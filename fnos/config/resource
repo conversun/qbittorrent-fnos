@@ -1,0 +1,19 @@
+{
+    "port-config": {
+        "protocol-file": "qBittorrent.sc"
+    },
+    "data-share": {
+        "shares": [
+            {
+                "name": "qBittorrent",
+                "permission": {
+                    "rw": [
+                        "qBittorrent"
+                    ]
+                }
+            }
+        ]
+    },
+    "systemd-unit": {
+    }
+}

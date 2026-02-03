@@ -1,0 +1,24 @@
+### Generic variables and functions
+### -------------------------------
+
+
+PACKAGE_BASE="/var/apps/${TRIM_APPNAME}/target"
+SVC_CWD="${PACKAGE_BASE}"
+
+QBIT_BIN="qbittorrent-nox"
+QBIT_CONF="${PACKAGE_BASE}/qBittorrent_conf/config/qBittorrent.conf"
+PROT=`get_key_value "${QBIT_CONF}" "WebUI\HTTPS\Enabled"`
+PORT=`get_key_value "${QBIT_CONF}" "WebUI\Port"`
+UIPROT=`cat "${PACKAGE_BASE}/ui/config" | jq -r '.".url"."'${TRIM_APPNAME}'.Application"."protocol"'`
+UIPORT=`cat "${PACKAGE_BASE}/ui/config" | jq -r '.".url"."'${TRIM_APPNAME}'.Application"."port"'`
+
+### Package specific variables and functions
+### ----------------------------------------
+
+MEM=`free -m | grep Mem: | awk {'print $2'}`
+ulimit -m `expr $MEM / 3 \* 1024`
+
+SERVICE_COMMAND[0]="bin/${QBIT_BIN} --profile="${PACKAGE_BASE}" --configuration="conf" --webui-port="${PORT}""
+
+SVC_BACKGROUND=y
+SVC_WRITE_PID=y

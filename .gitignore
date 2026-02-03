@@ -1,0 +1,6 @@
+*.fpk
+package/
+app.tgz
+*.deb
+extracted/
+app_root/

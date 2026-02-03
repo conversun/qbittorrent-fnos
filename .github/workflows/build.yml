@@ -1,0 +1,122 @@
+name: Build qBittorrent fnOS Package
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (leave empty for latest)'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Latest Version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            RELEASE_TAG=$(curl -sL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases/latest" | \
+              grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+            VERSION=$(echo "$RELEASE_TAG" | sed -E 's/release-([0-9]+\.[0-9]+\.[0-9]+)_.*/\1/')
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Check if Release Exists
+        id: check
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" &>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Version ${{ steps.version.outputs.version }} exists, skipping build"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Version ${{ steps.version.outputs.version }} not found, starting build"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Package
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          echo "==> Getting download URL"
+          RELEASE_TAG=$(curl -sL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases/latest" | \
+            grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          DOWNLOAD_URL="https://github.com/userdocs/qbittorrent-nox-static/releases/download/${RELEASE_TAG}/x86_64-qbittorrent-nox"
+          
+          echo "==> Downloading qbittorrent-nox $VERSION"
+          curl -L -o qbittorrent-nox "$DOWNLOAD_URL"
+          chmod +x qbittorrent-nox
+          ls -lh qbittorrent-nox
+          
+          echo "==> Building app.tgz"
+          mkdir -p app_root/bin app_root/ui/images
+          
+          cp qbittorrent-nox app_root/bin/qbittorrent-nox
+          chmod +x app_root/bin/qbittorrent-nox
+          
+          cp -a fnos/ui/* app_root/ui/ 2>/dev/null || true
+          
+          mkdir -p app_root/qBittorrent_conf/config
+          cat > app_root/qBittorrent_conf/config/qBittorrent.conf << 'QBCONF'
+          [LegalNotice]
+          Accepted=true
+          
+          [Preferences]
+          WebUI\Port=8080
+          WebUI\Username=admin
+          WebUI\Password_PBKDF2="@ByteArray(xK2EwRvfGtxfF+Ot9v4WYQ==:bNStY/6mFYYW8m/Xm4xSbBjoR2tZNsLZ4KvdUzyCLEOg7tfpchVJucIK9Dwcp6Xe9DI4RwpoCPI9zhicTdtf5A==)"
+          QBCONF
+          
+          cd app_root && tar -czf ../app.tgz . && cd ..
+          ls -lh app.tgz
+          
+          echo "==> Calculating checksum and updating manifest"
+          CHECKSUM=$(md5sum app.tgz | cut -d' ' -f1)
+          
+          sed -i "s/^version.*/version         = ${VERSION}/" fnos/manifest
+          sed -i "s/^checksum.*/checksum        = ${CHECKSUM}/" fnos/manifest
+          
+          echo "==> Building fpk"
+          mkdir -p package
+          mv app.tgz package/
+          cp -a fnos/cmd fnos/config fnos/wizard fnos/*.sc fnos/ICON*.PNG package/
+          cp fnos/manifest package/
+          
+          cd package && tar -czf ../qbittorrent_${VERSION}_amd64.fpk * && cd ..
+          
+          echo "==> Done"
+          ls -lh qbittorrent_${VERSION}_amd64.fpk
+
+      - name: Create Release
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          RELEASE_TAG=$(curl -sL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases/latest" | \
+            grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          
+          gh release create "v${VERSION}" \
+            --title "qBittorrent ${VERSION} for fnOS" \
+            --notes "Auto-built fnOS package
+
+          - Based on [qbittorrent-nox-static ${RELEASE_TAG}](https://github.com/userdocs/qbittorrent-nox-static/releases/tag/${RELEASE_TAG})
+          - Architecture: x86_64 (amd64)
+          - Platform: fnOS
+          - Default user: admin
+          - Default password: adminadmin (please change after login)" \
+            qbittorrent_${VERSION}_amd64.fpk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
