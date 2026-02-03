@@ -21,7 +21,7 @@ Auto-build qBittorrent packages for fnOS - Daily updates from qbittorrent-nox-st
 
 ## Web UI
 
-安装后访问 `http://<your-nas-ip>:8080`
+安装后访问 `http://<your-nas-ip>:8085`
 
 ## Auto Update
 

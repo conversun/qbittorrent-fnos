@@ -6,7 +6,7 @@
             "desc": "qBittorrent Web UI",
             "icon": "images/qbittorrent-{0}.png",
             "type": "url",
-            "port": "8080",
+            "port": "8085",
             "protocol": "http",
             "url": "/",
             "allUsers": true
