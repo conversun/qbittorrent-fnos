@@ -7,6 +7,7 @@ distributor     = conversun
 distributor_url = https://github.com/conversun/qbittorrent-fnos
 desktop_uidir   = ui
 desktop_appname = qBittorrent.Application
+reloadui        = yes
 beta            = no
 desc            = qBittorrent是一个轻量级BitTorrent客户端，简单易用，功能强大。默认用户名admin，密码adminadmin。
 source          = thirdparty

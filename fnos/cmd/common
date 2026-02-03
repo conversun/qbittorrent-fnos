@@ -284,13 +284,12 @@ install_callback ()
     if [ -n "${LOG_FILE}" ]; then
         echo "Installation log: ${INST_LOG}" >> ${LOG_FILE}
     fi
-	
-	QBpassword=`${TRIM_APPDEST}/bin/password-gen ${wizard_password}`
-	passwordConf="WebUI\\\Password_PBKDF2=\"${QBpassword}\""
-	QBConfig="${TRIM_APPDEST}/qBittorrent_conf/config/qBittorrent.conf"
-	sed -i "/Password_PBKDF2/c ${passwordConf}" $QBConfig
-	
 
+    if [ -d "${TRIM_PKGVAR}/qBittorrent_conf" ]; then
+        $RM "${TRIM_APPDEST}/qBittorrent_conf" 2>&1 | install_log
+        $LN "${TRIM_PKGVAR}/qBittorrent_conf" "${TRIM_APPDEST}" 2>&1 | install_log
+    fi
+	
     exit 0
 }
 
@@ -331,7 +330,12 @@ upgrade_init ()
 
     call_func "service_preupgrade" install_log
     call_func "service_save" install_log
-	mv  ${TRIM_APPDEST}/qBittorrent_conf /tmp/qBittorrent_conf
+    
+    # If config is in target (old install), migrate to var
+    if [ -d "${TRIM_APPDEST}/qBittorrent_conf" ] && [ ! -L "${TRIM_APPDEST}/qBittorrent_conf" ]; then
+        $MKDIR "${TRIM_PKGVAR}" 2>&1 | install_log
+        $MV "${TRIM_APPDEST}/qBittorrent_conf" "${TRIM_PKGVAR}/qBittorrent_conf" 2>&1 | install_log
+    fi
     exit 0
 }
 
@@ -340,9 +344,12 @@ upgrade_callback ()
     log_step "upgrade_callback"
     call_func "service_restore" install_log
     call_func "service_postupgrade" install_log
-	rm -rf ${TRIM_APPDEST}/qBittorrent_conf
-	mv /tmp/qBittorrent_conf ${TRIM_APPDEST}/qBittorrent_conf 
-	
+    
+    # Ensure symlink from target to var
+    if [ -d "${TRIM_PKGVAR}/qBittorrent_conf" ]; then
+        $RM "${TRIM_APPDEST}/qBittorrent_conf" 2>&1 | install_log
+        $LN "${TRIM_PKGVAR}/qBittorrent_conf" "${TRIM_APPDEST}" 2>&1 | install_log
+    fi
 
     exit 0
 }
@@ -466,4 +473,3 @@ wait_for_status ()
     done
     return 1
 }
-
