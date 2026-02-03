@@ -51,14 +51,14 @@ build_app_tgz() {
     info "构建 app.tgz..."
     
     local dst="$WORK_DIR/app_root"
-    mkdir -p "$dst/bin" "$dst/ui/images" "$dst/var/config/qBittorrent"
+    mkdir -p "$dst/bin" "$dst/ui/images" "$dst/var/qBittorrent/config"
     
     cp "$WORK_DIR/qbittorrent-nox" "$dst/bin/"
     chmod +x "$dst/bin/qbittorrent-nox"
     
     cp -a "$PKG_DIR/ui"/* "$dst/ui/" 2>/dev/null || true
     
-    cat > "$dst/var/config/qBittorrent/qBittorrent.conf" << 'QBCONF'
+    cat > "$dst/var/qBittorrent/config/qBittorrent.conf" << 'QBCONF'
 [LegalNotice]
 Accepted=true
 
@@ -81,7 +81,6 @@ WebUI\Password_PBKDF2="@ByteArray(xK2EwRvfGtxfF+Ot9v4WYQ==:bNStY/6mFYYW8m/Xm4xSb
 WebUI\CSRFProtection=false
 WebUI\ClickjackingProtection=false
 WebUI\HostHeaderValidation=false
-WebUI\LocalHostAuth=false
 QBCONF
     
     cd "$dst"
