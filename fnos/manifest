@@ -1,5 +1,5 @@
 appname         = qBittorrent
-version         = 4.6.11
+version         = 5.1.4
 display_name    = qBittorrent
 maintainer      = userdocs
 maintainer_url  = https://github.com/userdocs/qbittorrent-nox-static

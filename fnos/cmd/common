@@ -16,8 +16,14 @@ INST_LOG="/var/log/apps/${TRIM_APPNAME}.log"
 FWPORTS_FILE="/var/apps/${TRIM_APPNAME}/etc/${TRIM_APPNAME}.sc"
 SHARE_PATH="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}"
 
-LOG_FILE="${TRIM_PKGVAR}/${TRIM_APPNAME}.log"
-PID_FILE="${TRIM_PKGVAR}/${TRIM_APPNAME}.pid"
+LOG_DIR="${TRIM_PKGVAR}/logs"
+PID_DIR="${TRIM_PKGVAR}/run"
+LOG_FILE="${LOG_DIR}/${TRIM_APPNAME}.log"
+PID_FILE="${PID_DIR}/${TRIM_APPNAME}.pid"
+
+if [ -n "${TRIM_PKGVAR}" ]; then
+    $MKDIR "${LOG_DIR}" "${PID_DIR}"
+fi
 
 SVC_WAIT_TIMEOUT=15
 
@@ -285,9 +291,9 @@ install_callback ()
         echo "Installation log: ${INST_LOG}" >> ${LOG_FILE}
     fi
 
-    if [ -d "${TRIM_PKGVAR}/qBittorrent_conf" ]; then
-        $RM "${TRIM_APPDEST}/qBittorrent_conf" 2>&1 | install_log
-        $LN "${TRIM_PKGVAR}/qBittorrent_conf" "${TRIM_APPDEST}" 2>&1 | install_log
+    if [ -d "${TRIM_PKGVAR}/config" ]; then
+        $RM "${TRIM_APPDEST}/conf" 2>&1 | install_log
+        $LN "${TRIM_PKGVAR}/config" "${TRIM_APPDEST}/conf" 2>&1 | install_log
     fi
 	
     exit 0
@@ -331,11 +337,6 @@ upgrade_init ()
     call_func "service_preupgrade" install_log
     call_func "service_save" install_log
     
-    # If config is in target (old install), migrate to var
-    if [ -d "${TRIM_APPDEST}/qBittorrent_conf" ] && [ ! -L "${TRIM_APPDEST}/qBittorrent_conf" ]; then
-        $MKDIR "${TRIM_PKGVAR}" 2>&1 | install_log
-        $MV "${TRIM_APPDEST}/qBittorrent_conf" "${TRIM_PKGVAR}/qBittorrent_conf" 2>&1 | install_log
-    fi
     exit 0
 }
 
@@ -346,9 +347,9 @@ upgrade_callback ()
     call_func "service_postupgrade" install_log
     
     # Ensure symlink from target to var
-    if [ -d "${TRIM_PKGVAR}/qBittorrent_conf" ]; then
-        $RM "${TRIM_APPDEST}/qBittorrent_conf" 2>&1 | install_log
-        $LN "${TRIM_PKGVAR}/qBittorrent_conf" "${TRIM_APPDEST}" 2>&1 | install_log
+    if [ -d "${TRIM_PKGVAR}/config" ]; then
+        $RM "${TRIM_APPDEST}/conf" 2>&1 | install_log
+        $LN "${TRIM_PKGVAR}/config" "${TRIM_APPDEST}/conf" 2>&1 | install_log
     fi
 
     exit 0

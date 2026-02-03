@@ -12,6 +12,13 @@ Auto-build qBittorrent packages for fnOS - Daily updates from qbittorrent-nox-st
 2. 在 fnOS 应用管理中选择「手动安装」
 3. 上传 fpk 文件完成安装
 
+## Packaging Notes
+
+- 配置默认写入 `/vol1/@appdata/qBittorrent/config`，`target` 下建立软链，卸载重装可保留配置
+- 默认端口 8085，并同步 Web UI 入口
+- 默认配置包含中文界面、下载目录与临时目录指向 shares
+- 图标尺寸按官方包修正（含 144px）
+
 ## Default Credentials
 
 - **Username**: admin

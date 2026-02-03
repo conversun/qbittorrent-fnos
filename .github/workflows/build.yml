@@ -70,8 +70,8 @@ jobs:
           
           cp -a fnos/ui/* app_root/ui/ 2>/dev/null || true
           
-          mkdir -p app_root/var/qBittorrent_conf/config
-          cat << 'QBCONF' | sed 's/^ *//' > app_root/var/qBittorrent_conf/config/qBittorrent.conf
+          mkdir -p app_root/var/config
+          cat << 'QBCONF' | sed 's/^ *//' > app_root/var/config/qBittorrent.conf
           [LegalNotice]
           Accepted=true
 

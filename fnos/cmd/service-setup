@@ -6,11 +6,22 @@ PACKAGE_BASE="/var/apps/${TRIM_APPNAME}/target"
 SVC_CWD="${PACKAGE_BASE}"
 
 QBIT_BIN="qbittorrent-nox"
-QBIT_CONF="${PACKAGE_BASE}/qBittorrent_conf/config/qBittorrent.conf"
-PROT=`get_key_value "${QBIT_CONF}" "WebUI\HTTPS\Enabled"`
-PORT=`get_key_value "${QBIT_CONF}" "WebUI\Port"`
-UIPROT=`cat "${PACKAGE_BASE}/ui/config" | jq -r '.".url"."'${TRIM_APPNAME}'.Application"."protocol"'`
-UIPORT=`cat "${PACKAGE_BASE}/ui/config" | jq -r '.".url"."'${TRIM_APPNAME}'.Application"."port"'`
+QBIT_CONF="${TRIM_PKGVAR}/config/qBittorrent.conf"
+PORT=""
+if [ -f "${QBIT_CONF}" ]; then
+    PORT=`get_key_value "${QBIT_CONF}" "WebUI\Port"`
+fi
+UIPORT=""
+if [ -f "${PACKAGE_BASE}/ui/config" ]; then
+    UIPORT=`cat "${PACKAGE_BASE}/ui/config" | jq -r '.".url"."'${TRIM_APPNAME}'.Application"."port"'`
+fi
+
+if [ -z "${PORT}" ] || [ "${PORT}" = "null" ]; then
+    PORT="${UIPORT}"
+fi
+if [ -z "${PORT}" ] || [ "${PORT}" = "null" ]; then
+    PORT="8085"
+fi
 
 ### Package specific variables and functions
 ### ----------------------------------------
@@ -18,7 +29,7 @@ UIPORT=`cat "${PACKAGE_BASE}/ui/config" | jq -r '.".url"."'${TRIM_APPNAME}'.Appl
 MEM=`free -m | grep Mem: | awk {'print $2'}`
 ulimit -m `expr $MEM / 3 \* 1024`
 
-SERVICE_COMMAND[0]="bin/${QBIT_BIN} --profile="${PACKAGE_BASE}" --configuration="conf" --webui-port="${PORT}""
+SERVICE_COMMAND[0]="bin/${QBIT_BIN} --profile=${TRIM_PKGVAR} --configuration=config --webui-port=${PORT}"
 
 SVC_BACKGROUND=y
 SVC_WRITE_PID=y
