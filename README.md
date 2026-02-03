@@ -1,128 +1,45 @@
 # qBittorrent for fnOS
 
-Auto-build qBittorrent packages for fnOS - Daily updates from qbittorrent-nox-static releases
+自动构建 fnOS 的 qBittorrent 安装包，每日同步 [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static/releases) 最新版本。
 
-## Download
+## 安装
 
-从 [Releases](https://github.com/conversun/qbittorrent-fnos/releases) 下载最新的 `.fpk` 文件。
+1. 从 [Releases](https://github.com/conversun/qbittorrent-fnos/releases) 下载 `.fpk` 文件
+2. fnOS 应用管理 → 手动安装 → 上传
 
-## Install
+**默认账号**: `admin` / `adminadmin` ⚠️ 请及时修改密码
 
-1. 下载 `qbittorrent_x.x.x_amd64.fpk`
-2. 在 fnOS 应用管理中选择「手动安装」
-3. 上传 fpk 文件完成安装
+**访问地址**: `http://<NAS-IP>:8085`
 
-## Default Credentials
+## 预设配置
 
-- **Username**: admin
-- **Password**: adminadmin
+| 类别 | 配置 |
+|------|------|
+| 界面 | 中文、自动接受法律声明 |
+| 端口 | WebUI `8085`、BT `63219` |
+| 路径 | 下载目录 `shares/qBittorrent/Download`、日志 `var/logs` |
+| WebUI | 禁用 CSRF/点击劫持/Host 验证 (适配 fnOS 反代) |
+| 数据 | 自动下载最新 [DB-IP GeoDB](https://db-ip.com/db/lite.php) 用于 Peer 地理位置显示 |
 
-⚠️ 请在首次登录后立即修改密码！
+## 相对旧版 fpk 的修复
 
-## Web UI
+| 问题 | 修复 |
+|------|------|
+| 配置路径错误，升级丢失 | 改用标准 profile 路径 `var/qBittorrent/config/` |
+| 日志写入 `/tmp`，重启丢失 | 改为 `var/logs/` 持久化 |
+| 缺少用户名，每次生成临时密码 | 预设 `admin`/`adminadmin` |
+| WebUI 仅管理员可见 | 改为所有用户可见 |
+| 框架日志与应用日志同名混淆 | 框架日志改名为 `service.log` |
+| 包含 50+ 无用搜索插件 | 精简移除 |
 
-安装后访问 `http://<your-nas-ip>:8085`
+## 自动更新
 
-## Configuration Changes
-
-本项目对原生 qBittorrent 做了以下预配置，以适配 fnOS 环境：
-
-### 基础设置
-
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| `LegalNotice\Accepted` | `true` | 自动接受法律声明，跳过首次启动提示 |
-| `General\Locale` | `zh_CN` | 默认中文界面 |
-
-### 路径配置
-
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| `Session\DefaultSavePath` | `/var/apps/qBittorrent/shares/qBittorrent/Download` | 默认下载目录 |
-| `Session\TempPath` | `/var/apps/qBittorrent/shares/qBittorrent/temp` | 临时文件目录 |
-| `Session\TempPathEnabled` | `false` | 禁用独立临时目录 |
-| `FileLogger\Enabled` | `true` | 启用日志 |
-| `FileLogger\Path` | `/var/apps/qBittorrent/var/logs` | 日志目录 |
-
-### 网络配置
-
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| `Session\Port` | `63219` | BT 监听端口 |
-| `Session\QueueingSystemEnabled` | `false` | 禁用队列系统，不限制同时下载数 |
-
-### WebUI 配置
-
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| `WebUI\Port` | `8085` | WebUI 端口 |
-| `WebUI\Username` | `admin` | 默认用户名 |
-| `WebUI\Password_PBKDF2` | *(预设hash)* | 默认密码 `adminadmin` |
-| `WebUI\CSRFProtection` | `false` | 禁用 CSRF 保护，允许 fnOS 反代访问 |
-| `WebUI\ClickjackingProtection` | `false` | 禁用点击劫持保护，允许 iframe 嵌入 |
-| `WebUI\HostHeaderValidation` | `false` | 禁用 Host 头验证，允许通过反代访问 |
-
-### 目录结构
-
-```
-/var/apps/qBittorrent/
-├── var/
-│   ├── qBittorrent/config/qBittorrent.conf  # 配置文件
-│   └── logs/
-│       ├── qbittorrent.log                   # 应用日志
-│       └── service.log                       # 服务启停日志
-└── shares/qBittorrent/
-    ├── Download/                             # 下载目录
-    └── temp/                                 # 临时目录
-```
-
-## Fixes (相对官方旧版 fpk)
-
-本项目修复了官方/第三方旧版 fpk 的以下问题：
-
-### 🔧 配置路径修复
-
-| 问题 | 旧版 | 修复后 |
-|------|------|--------|
-| 配置文件路径错误 | `target/qBittorrent_conf/config/` (使用 `--configuration=conf`) | `var/qBittorrent/config/` (标准 profile 路径) |
-| 配置无法持久化 | 配置写入 target 目录，升级后丢失 | 配置写入 var 目录，升级保留 |
-| 日志路径 | `/tmp/qBittorrent-logs` (临时目录，重启丢失) | `/var/apps/qBittorrent/var/logs` (持久化) |
-
-### 🔐 认证修复
-
-| 问题 | 旧版 | 修复后 |
-|------|------|--------|
-| 缺少默认用户名 | 配置中无 `WebUI\Username` | 预设 `admin` |
-| 首次启动临时密码 | 每次启动生成随机临时密码 | 预设固定密码 `adminadmin` |
-| 升级时凭据丢失 | 仅补充密码，不补充用户名 | 同时检查并补充用户名和密码 |
-
-### 📦 打包改进
-
-| 问题 | 旧版 | 修复后 |
-|------|------|--------|
-| WebUI 访问权限 | `allUsers: false` (仅管理员可见) | `allUsers: true` (所有用户可见) |
-| 法律声明 | 首次启动需手动接受 | 自动接受，跳过提示 |
-| 日志文件混淆 | 框架日志与应用日志同名 | 框架日志改名为 `service.log` |
-| manifest 格式 | 旧格式 (带引号) | fnOS 标准格式 |
-
-### 🗑️ 精简内容
-
-移除了旧版中不必要的组件：
-- `qbmonitor` 监控脚本
-- `password-gen` 密码生成工具
-- `nova3/engines/` 搜索插件 (50+ 个 Python 文件)
-- `GeoDB` 地理数据库
-
-## Auto Update
-
-GitHub Actions 每天自动检查 [qbittorrent-nox-static Releases](https://github.com/userdocs/qbittorrent-nox-static/releases)，有新版本时自动构建并发布。
-
-## Architecture
-
-- **Platform**: fnOS (飞牛私有云)
-- **Architecture**: x86_64 (amd64)
+GitHub Actions 每日检查上游新版本，自动构建发布。构建时自动获取：
+- 最新 qbittorrent-nox 静态编译版
+- 最新 DB-IP GeoDB 数据库
 
 ## Credits
 
-- [qBittorrent](https://www.qbittorrent.org/) - BitTorrent Client
-- [userdocs/qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) - Static builds
+- [qBittorrent](https://www.qbittorrent.org/)
+- [userdocs/qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static)
+- [DB-IP Lite](https://db-ip.com/db/lite.php)

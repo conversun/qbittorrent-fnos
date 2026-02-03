@@ -62,15 +62,28 @@ jobs:
           chmod +x qbittorrent-nox
           ls -lh qbittorrent-nox
           
+          echo "==> Downloading GeoDB"
+          YEAR_MONTH=$(date +%Y-%m)
+          GEODB_URL="https://download.db-ip.com/free/dbip-country-lite-${YEAR_MONTH}.mmdb.gz"
+          mkdir -p GeoDB
+          if curl -L -f -o GeoDB/dbip-country-lite.mmdb.gz "$GEODB_URL"; then
+            gunzip -f GeoDB/dbip-country-lite.mmdb.gz
+            ls -lh GeoDB/
+          else
+            echo "Current month GeoDB not available, trying previous month..."
+            YEAR_MONTH=$(date -d "1 month ago" +%Y-%m)
+            GEODB_URL="https://download.db-ip.com/free/dbip-country-lite-${YEAR_MONTH}.mmdb.gz"
+            curl -L -f -o GeoDB/dbip-country-lite.mmdb.gz "$GEODB_URL" && gunzip -f GeoDB/dbip-country-lite.mmdb.gz || echo "GeoDB download failed, skipping"
+          fi
+          
           echo "==> Building app.tgz"
-          mkdir -p app_root/bin app_root/ui/images
+          mkdir -p app_root/bin app_root/ui/images app_root/var/qBittorrent/config app_root/var/qBittorrent/data/GeoDB
           
           cp qbittorrent-nox app_root/bin/qbittorrent-nox
           chmod +x app_root/bin/qbittorrent-nox
           
           cp -a fnos/ui/* app_root/ui/ 2>/dev/null || true
-          
-          mkdir -p app_root/var/qBittorrent/config
+          cp -a GeoDB/* app_root/var/qBittorrent/data/GeoDB/ 2>/dev/null || true
           cat << 'QBCONF' | sed 's/^ *//' > app_root/var/qBittorrent/config/qBittorrent.conf
           [LegalNotice]
           Accepted=true

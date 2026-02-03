@@ -39,24 +39,44 @@ get_latest_version() {
 download_binary() {
     local download_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/${RELEASE_TAG}/x86_64-qbittorrent-nox"
     
-    info "下载: $download_url"
+    info "下载 qbittorrent-nox..."
     mkdir -p "$WORK_DIR"
     
-    curl -L -f -o "$WORK_DIR/qbittorrent-nox" "$download_url" || error "下载失败"
+    curl -L -f -o "$WORK_DIR/qbittorrent-nox" "$download_url" || error "下载 qbittorrent-nox 失败"
     chmod +x "$WORK_DIR/qbittorrent-nox"
     info "下载完成: $(du -h "$WORK_DIR/qbittorrent-nox" | cut -f1)"
+}
+
+download_geodb() {
+    local year_month=$(date +%Y-%m)
+    local geodb_url="https://download.db-ip.com/free/dbip-country-lite-${year_month}.mmdb.gz"
+    
+    info "下载 GeoDB (${year_month})..."
+    mkdir -p "$WORK_DIR/GeoDB"
+    
+    if curl -L -f -o "$WORK_DIR/GeoDB/dbip-country-lite.mmdb.gz" "$geodb_url" 2>/dev/null; then
+        gunzip -f "$WORK_DIR/GeoDB/dbip-country-lite.mmdb.gz"
+        info "GeoDB 下载完成: $(du -h "$WORK_DIR/GeoDB/dbip-country-lite.mmdb" | cut -f1)"
+    else
+        warn "GeoDB 下载失败，尝试上月版本..."
+        year_month=$(date -v-1m +%Y-%m 2>/dev/null || date -d "1 month ago" +%Y-%m)
+        geodb_url="https://download.db-ip.com/free/dbip-country-lite-${year_month}.mmdb.gz"
+        curl -L -f -o "$WORK_DIR/GeoDB/dbip-country-lite.mmdb.gz" "$geodb_url" || warn "GeoDB 下载失败，跳过"
+        [ -f "$WORK_DIR/GeoDB/dbip-country-lite.mmdb.gz" ] && gunzip -f "$WORK_DIR/GeoDB/dbip-country-lite.mmdb.gz"
+    fi
 }
 
 build_app_tgz() {
     info "构建 app.tgz..."
     
     local dst="$WORK_DIR/app_root"
-    mkdir -p "$dst/bin" "$dst/ui/images" "$dst/var/qBittorrent/config"
+    mkdir -p "$dst/bin" "$dst/ui/images" "$dst/var/qBittorrent/config" "$dst/var/qBittorrent/data/GeoDB"
     
     cp "$WORK_DIR/qbittorrent-nox" "$dst/bin/"
     chmod +x "$dst/bin/qbittorrent-nox"
     
     cp -a "$PKG_DIR/ui"/* "$dst/ui/" 2>/dev/null || true
+    cp -a "$WORK_DIR/GeoDB"/* "$dst/var/qBittorrent/data/GeoDB/" 2>/dev/null || true
     
     cat > "$dst/var/qBittorrent/config/qBittorrent.conf" << 'QBCONF'
 [LegalNotice]
@@ -158,6 +178,7 @@ main() {
     fi
     
     download_binary
+    download_geodb
     build_app_tgz
     update_manifest
     build_fpk
