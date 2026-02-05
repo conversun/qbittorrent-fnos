@@ -227,24 +227,24 @@ jobs:
           
           if [[ "$RELEASE_TAG" == *"-r"* ]]; then
             REVISION_NOTE="
-          - **Packaging Revision**: ${RELEASE_TAG##*-}"
+          - **打包修订**: ${RELEASE_TAG##*-}"
           else
             REVISION_NOTE=""
           fi
           
           gh release create "$RELEASE_TAG" \
             --title "qBittorrent ${VERSION} for fnOS" \
-            --notes "Auto-built fnOS package
+            --notes "自动构建的 fnOS 安装包
 
-          - Based on [qbittorrent-nox-static ${UPSTREAM_TAG}](https://github.com/userdocs/qbittorrent-nox-static/releases/tag/${UPSTREAM_TAG})
-          - Platform: fnOS
-          - Default user: admin
-          - Default password: adminadmin (please change after login)${REVISION_NOTE}
+          - 基于 [qbittorrent-nox-static ${UPSTREAM_TAG}](https://github.com/userdocs/qbittorrent-nox-static/releases/tag/${UPSTREAM_TAG})
+          - 平台: fnOS
+          - 默认用户: admin
+          - 默认密码: adminadmin (请登录后修改)${REVISION_NOTE}
 
-          ## Downloads
+          ## 下载
 
-          | Architecture | File |
-          |--------------|------|
+          | 架构 | 文件 |
+          |------|------|
           | x86_64 (Intel/AMD) | \`qbittorrent_${VERSION}_amd64.fpk\` |
           | aarch64 (ARM64) | \`qbittorrent_${VERSION}_arm64.fpk\` |" \
             artifacts/fpk-amd64/*.fpk \
