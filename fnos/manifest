@@ -1,7 +1,7 @@
 appname         = qBittorrent
 version         = 5.1.4
 display_name    = qBittorrent
-arch            = x86_64
+platform        = arm
 maintainer      = userdocs
 maintainer_url  = https://github.com/userdocs/qbittorrent-nox-static
 distributor     = conversun
