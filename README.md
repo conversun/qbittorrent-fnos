@@ -6,11 +6,6 @@
 
 从 [Releases](https://github.com/conversun/qbittorrent-fnos/releases) 下载 `.fpk` 文件。
 
-| 架构 | 文件名 | 适用设备 |
-|------|--------|----------|
-| x86_64 (amd64) | `qbittorrent_x.x.x_amd64.fpk` | Intel/AMD 处理器 |
-| aarch64 (arm64) | `qbittorrent_x.x.x_arm64.fpk` | ARM64 处理器 |
-
 ## 安装
 
 1. 根据你的设备架构下载对应的 `.fpk` 文件
