@@ -241,7 +241,9 @@ jobs:
           - 默认用户: admin
           - 默认密码: adminadmin (请登录后修改)${REVISION_NOTE}
 
-          **国内镜像**: https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/" \
+          **国内镜像**:
+          - [amd64](https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/qbittorrent_${VERSION}_amd64.fpk)
+          - [arm64](https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/qbittorrent_${VERSION}_arm64.fpk)" \
             artifacts/fpk-amd64/*.fpk \
             artifacts/fpk-arm64/*.fpk
         env:
