@@ -96,10 +96,10 @@ jobs:
         include:
           - arch: amd64
             binary_prefix: x86_64
-            manifest_arch: x86_64
+            manifest_platform: x86
           - arch: arm64
             binary_prefix: aarch64
-            manifest_arch: aarch64
+            manifest_platform: arm
     
     steps:
       - name: Checkout
@@ -111,7 +111,7 @@ jobs:
           UPSTREAM_TAG="${{ needs.check-version.outputs.upstream_tag }}"
           ARCH="${{ matrix.arch }}"
           BINARY_PREFIX="${{ matrix.binary_prefix }}"
-          MANIFEST_ARCH="${{ matrix.manifest_arch }}"
+          MANIFEST_PLATFORM="${{ matrix.manifest_platform }}"
           
           echo "==> Building for $ARCH (binary prefix: $BINARY_PREFIX)"
           
@@ -179,10 +179,10 @@ jobs:
           sed -i "s/^version.*/version         = ${VERSION}/" fnos/manifest
           sed -i "s/^checksum.*/checksum        = ${CHECKSUM}/" fnos/manifest
           
-          if ! grep -q "^arch" fnos/manifest; then
-            echo "arch            = ${MANIFEST_ARCH}" >> fnos/manifest
+          if ! grep -q "^platform" fnos/manifest; then
+            echo "platform        = ${MANIFEST_PLATFORM}" >> fnos/manifest
           else
-            sed -i "s/^arch.*/arch            = ${MANIFEST_ARCH}/" fnos/manifest
+            sed -i "s/^platform.*/platform        = ${MANIFEST_PLATFORM}/" fnos/manifest
           fi
           
           echo "==> Building fpk"
