@@ -4,7 +4,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PKG_DIR="$SCRIPT_DIR/fnos"
 WORK_DIR="/tmp/qbittorrent_update_$$"
-QB_VERSION="${1:-latest}"
+QB_VERSION="${QB_VERSION:-latest}"
+ARCH="${ARCH:-}"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,16 +19,49 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 cleanup() { rm -rf "$WORK_DIR"; }
 trap cleanup EXIT
 
+detect_arch() {
+    if [ -z "$ARCH" ]; then
+        local machine=$(uname -m)
+        case "$machine" in
+            x86_64|amd64)
+                ARCH=amd64
+                ;;
+            aarch64|arm64)
+                ARCH=arm64
+                ;;
+            *)
+                error "Unsupported architecture: $machine. Use --arch to specify amd64 or arm64."
+                ;;
+        esac
+        info "Auto-detected architecture: $ARCH"
+    fi
+    
+    case "$ARCH" in
+        amd64)
+            BINARY_PREFIX="x86_64"
+            MANIFEST_ARCH="x86_64"
+            ;;
+        arm64)
+            BINARY_PREFIX="aarch64"
+            MANIFEST_ARCH="aarch64"
+            ;;
+        *)
+            error "Invalid architecture: $ARCH. Must be amd64 or arm64."
+            ;;
+    esac
+    
+    info "Binary prefix: $BINARY_PREFIX"
+    info "Manifest arch: $MANIFEST_ARCH"
+}
+
 get_latest_version() {
     info "获取最新版本信息..."
     
+    RELEASE_TAG=$(curl -sL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases/latest" 2>/dev/null | \
+        grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    
     if [ "$QB_VERSION" = "latest" ]; then
-        RELEASE_TAG=$(curl -sL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases/latest" 2>/dev/null | \
-            grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         QB_VERSION=$(echo "$RELEASE_TAG" | sed -E 's/release-([0-9]+\.[0-9]+\.[0-9]+)_.*/\1/')
-    else
-        RELEASE_TAG=$(curl -sL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases/latest" 2>/dev/null | \
-            grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     fi
     
     [ -z "$QB_VERSION" ] && error "无法获取版本信息，请手动指定: $0 5.1.4"
@@ -37,9 +71,9 @@ get_latest_version() {
 }
 
 download_binary() {
-    local download_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/${RELEASE_TAG}/x86_64-qbittorrent-nox"
+    local download_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/${RELEASE_TAG}/${BINARY_PREFIX}-qbittorrent-nox"
     
-    info "下载 qbittorrent-nox..."
+    info "下载 qbittorrent-nox ($ARCH)..."
     mkdir -p "$WORK_DIR"
     
     curl -L -f -o "$WORK_DIR/qbittorrent-nox" "$download_url" || error "下载 qbittorrent-nox 失败"
@@ -114,11 +148,18 @@ update_manifest() {
     
     sed -i.tmp "s/^version.*=.*/version         = ${QB_VERSION}/" "$PKG_DIR/manifest"
     sed -i.tmp "s/^checksum.*=.*/checksum        = ${checksum}/" "$PKG_DIR/manifest"
+    
+    if ! grep -q "^arch" "$PKG_DIR/manifest"; then
+        echo "arch            = ${MANIFEST_ARCH}" >> "$PKG_DIR/manifest"
+    else
+        sed -i.tmp "s/^arch.*=.*/arch            = ${MANIFEST_ARCH}/" "$PKG_DIR/manifest"
+    fi
+    
     rm -f "$PKG_DIR/manifest.tmp"
 }
 
 build_fpk() {
-    local fpk_name="qbittorrent_${QB_VERSION}_amd64.fpk"
+    local fpk_name="qbittorrent_${QB_VERSION}_${ARCH}.fpk"
     info "打包 $fpk_name..."
     
     mkdir -p "$WORK_DIR/package"
@@ -139,12 +180,25 @@ build_fpk() {
 
 show_help() {
     cat << EOF
-用法: $0 [版本号|latest]
+用法: $0 [选项] [版本号|latest]
+
+选项:
+  --arch ARCH       指定目标架构 (amd64 或 arm64)，默认自动检测
+  -h, --help        显示此帮助信息
 
 示例:
-  $0                # 最新稳定版
-  $0 5.1.4          # 指定版本
-  $0 latest         # 最新版本
+  $0                        # 最新稳定版，自动检测架构
+  $0 --arch arm64           # 最新版本，ARM64 架构
+  $0 --arch amd64 5.1.4     # 指定版本，AMD64 架构
+  $0 5.1.4                  # 指定版本，自动检测架构
+
+环境变量:
+  ARCH              目标架构 (amd64 或 arm64)
+  QB_VERSION        qBittorrent 版本号
+
+支持的架构:
+  amd64 (x86_64)    Intel/AMD 64位处理器
+  arm64 (aarch64)   ARM 64位处理器
 
 说明:
   默认用户名: admin
@@ -152,8 +206,34 @@ show_help() {
 EOF
 }
 
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            --arch)
+                ARCH="$2"
+                shift 2
+                ;;
+            --arch=*)
+                ARCH="${1#*=}"
+                shift
+                ;;
+            -*)
+                error "未知选项: $1"
+                ;;
+            *)
+                QB_VERSION="$1"
+                shift
+                ;;
+        esac
+    done
+}
+
 main() {
-    [ "$1" = "-h" ] || [ "$1" = "--help" ] && { show_help; exit 0; }
+    parse_args "$@"
     
     echo "========================================"
     echo "  qBittorrent fnOS Package Builder"
@@ -165,6 +245,8 @@ main() {
     done
     
     [ -f "$PKG_DIR/manifest" ] || error "找不到 fnos 目录"
+    
+    detect_arch
     
     local current_version=$(grep "^version" "$PKG_DIR/manifest" | awk -F'=' '{print $2}' | tr -d ' ')
     info "当前版本: $current_version"
@@ -184,7 +266,7 @@ main() {
     build_fpk
     
     echo
-    info "完成: $current_version -> $QB_VERSION"
+    info "完成: $current_version -> $QB_VERSION ($ARCH)"
 }
 
 main "$@"

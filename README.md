@@ -2,9 +2,18 @@
 
 自动构建 fnOS 的 qBittorrent 安装包，每日同步 [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static/releases) 最新版本。
 
+## 下载
+
+从 [Releases](https://github.com/conversun/qbittorrent-fnos/releases) 下载 `.fpk` 文件。
+
+| 架构 | 文件名 | 适用设备 |
+|------|--------|----------|
+| x86_64 (amd64) | `qbittorrent_x.x.x_amd64.fpk` | Intel/AMD 处理器 |
+| aarch64 (arm64) | `qbittorrent_x.x.x_arm64.fpk` | ARM64 处理器 |
+
 ## 安装
 
-1. 从 [Releases](https://github.com/conversun/qbittorrent-fnos/releases) 下载 `.fpk` 文件
+1. 根据你的设备架构下载对应的 `.fpk` 文件
 2. fnOS 应用管理 → 手动安装 → 上传
 
 **默认账号**: `admin` / `adminadmin` ⚠️ 请及时修改密码
@@ -45,6 +54,29 @@
 | WebUI 仅管理员可见 | 改为所有用户可见 |
 | 框架日志与应用日志同名混淆 | 框架日志改名为 `service.log` |
 | 包含 50+ 无用搜索插件 | 精简移除 |
+
+## 本地构建
+
+```bash
+# 自动检测架构，构建最新版本
+./update_qbittorrent.sh
+
+# 指定架构
+./update_qbittorrent.sh --arch arm64
+./update_qbittorrent.sh --arch amd64
+
+# 指定版本
+./update_qbittorrent.sh --arch arm64 5.1.4
+
+# 查看帮助
+./update_qbittorrent.sh --help
+```
+
+## 版本标签
+
+Release 版本号规则：
+- `v5.1.4` - 首次发布
+- `v5.1.4-r2` - 同版本的打包修订（上游未更新时重新发布）
 
 ## 自动更新
 
