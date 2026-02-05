@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-      release_tag: ${{ steps.version.outputs.release_tag }}
+      release_tag: ${{ steps.check.outputs.release_tag }}
       upstream_tag: ${{ steps.version.outputs.upstream_tag }}
       should_build: ${{ steps.check.outputs.should_build }}
     
