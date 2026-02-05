@@ -92,12 +92,12 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        arch: [amd64, arm64]
+        arch: [x86, arm]
         include:
-          - arch: amd64
+          - arch: x86
             binary_prefix: x86_64
             manifest_platform: x86
-          - arch: arm64
+          - arch: arm
             binary_prefix: aarch64
             manifest_platform: arm
     
@@ -242,9 +242,9 @@ jobs:
           - 默认密码: adminadmin (请登录后修改)${REVISION_NOTE}
 
           **国内镜像**:
-          - [qbittorrent_${VERSION}_amd64.fpk](https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/qbittorrent_${VERSION}_amd64.fpk)
-          - [qbittorrent_${VERSION}_arm64.fpk](https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/qbittorrent_${VERSION}_arm64.fpk)" \
-            artifacts/fpk-amd64/*.fpk \
-            artifacts/fpk-arm64/*.fpk
+          - [qbittorrent_${VERSION}_x86.fpk](https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/qbittorrent_${VERSION}_x86.fpk)
+          - [qbittorrent_${VERSION}_arm.fpk](https://ghfast.top/https://github.com/conversun/qbittorrent-fnos/releases/download/${RELEASE_TAG}/qbittorrent_${VERSION}_arm.fpk)" \
+            artifacts/fpk-x86/*.fpk \
+            artifacts/fpk-arm/*.fpk
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
