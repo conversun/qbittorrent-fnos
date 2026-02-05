@@ -84,6 +84,10 @@ GitHub Actions 每日检查上游新版本，自动构建发布。构建时自�
 - 最新 qbittorrent-nox 静态编译版
 - 最新 DB-IP GeoDB 数据库
 
+## 开源透明
+
+本项目完全开源，仅从官方渠道下载原版软件并重新打包，**无任何后门或修改**。构建脚本和 CI 流程公开透明，欢迎审查。
+
 ## Credits
 
 - [qBittorrent](https://www.qbittorrent.org/)
