@@ -9,11 +9,11 @@ TEE="/usr/bin/tee -a"
 RSYNC="/bin/rsync -avh"
 TAR="/bin/tar"
 
-INST_ETC="/var/apps/${TRIM_APPNAME}/etc"
+INST_ETC="${TRIM_PKGETC}"
 INST_VARIABLES="${INST_ETC}/installer-variables"
 INST_LOG="/var/log/apps/${TRIM_APPNAME}.log"
 
-FWPORTS_FILE="/var/apps/${TRIM_APPNAME}/etc/${TRIM_APPNAME}.sc"
+FWPORTS_FILE="${TRIM_PKGETC}/${TRIM_APPNAME}.sc"
 SHARE_PATH="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}"
 
 LOG_DIR="${TRIM_PKGVAR}/logs"
@@ -322,8 +322,8 @@ uninstall_callback ()
             find ${TRIM_PKGVAR} -mindepth 1 -delete -print | install_log
         fi
 
-        if [ "$(ls -A /var/apps/${TRIM_APPNAME}/etc)" != "" ]; then
-            find /var/apps/${TRIM_APPNAME}/etc -mindepth 1 -delete -print | install_log
+        if [ "$(ls -A ${TRIM_PKGETC})" != "" ]; then
+            find ${TRIM_PKGETC} -mindepth 1 -delete -print | install_log
         fi
     fi
     exit 0

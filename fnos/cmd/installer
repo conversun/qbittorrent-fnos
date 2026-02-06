@@ -5,7 +5,7 @@
 INST_LOG="/var/log/apps/${TRIM_APPNAME}.log"
 
 # Optional FWPORTS file
-FWPORTS_FILE="/var/apps/${TRIM_APPNAME}/etc/${TRIM_APPNAME}.sc"
+FWPORTS_FILE="${TRIM_PKGETC}/${TRIM_APPNAME}.sc"
 
 # Temporary directory when the package is upgrading
 TMP_DIR="${TRIM_TEMP_UPGRADE_FOLDER}"

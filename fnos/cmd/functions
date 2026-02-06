@@ -14,7 +14,7 @@ TEE="/usr/bin/tee -a"
 RSYNC="/bin/rsync -avh"
 TAR="/bin/tar"
 
-INST_ETC="/var/packages/${TRIM_APPNAME}/etc"
+INST_ETC="${TRIM_PKGETC}"
 INST_VARIABLES="${INST_ETC}/installer-variables"
 
 

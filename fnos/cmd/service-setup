@@ -2,7 +2,7 @@
 ### -------------------------------
 
 
-PACKAGE_BASE="/var/apps/${TRIM_APPNAME}/target"
+PACKAGE_BASE="${TRIM_APPDEST}"
 SVC_CWD="${PACKAGE_BASE}"
 
 QBIT_BIN="qbittorrent-nox"
