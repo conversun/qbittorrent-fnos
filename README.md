@@ -57,11 +57,11 @@
 ./update_qbittorrent.sh
 
 # 指定架构
-./update_qbittorrent.sh --arch arm64
-./update_qbittorrent.sh --arch amd64
+./update_qbittorrent.sh --arch arm
+./update_qbittorrent.sh --arch x86
 
 # 指定版本
-./update_qbittorrent.sh --arch arm64 5.1.4
+./update_qbittorrent.sh --arch arm 5.1.4
 
 # 查看帮助
 ./update_qbittorrent.sh --help
